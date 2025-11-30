@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { Dashboard } from "@/components/Dashboard";
 import { MoodTracker } from "@/components/MoodTracker";
@@ -6,9 +7,18 @@ import { AIChat } from "@/components/AIChat";
 import { CommunitySection } from "@/components/CommunitySection";
 import { TherapistConnection } from "@/components/TherapistConnection";
 import { RecommendationsPanel } from "@/components/RecommendationsPanel";
+import { useAuth } from "@/hooks/useAuth";
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState('dashboard');
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/auth");
+    }
+  }, [user, loading, navigate]);
 
   const renderActiveSection = () => {
     switch (activeSection) {
@@ -58,6 +68,18 @@ const Index = () => {
         return <Dashboard />;
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-background">
