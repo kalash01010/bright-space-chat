@@ -9,8 +9,21 @@ import {
   Settings,
   Menu,
   X,
-  Heart
+  Heart,
+  LogOut,
+  UserCircle,
+  Shield
 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface NavigationProps {
   activeSection: string;
@@ -28,6 +41,7 @@ const navItems = [
 
 export const Navigation = ({ activeSection, onSectionChange }: NavigationProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, isAdmin, signOut } = useAuth();
 
   return (
     <>
@@ -65,11 +79,55 @@ export const Navigation = ({ activeSection, onSectionChange }: NavigationProps) 
             })}
           </div>
 
-          <div className="border-t border-border pt-4 mt-4">
+          <div className="border-t border-border pt-4 mt-4 space-y-2">
             <Button variant="ghost" className="w-full justify-start gap-3">
               <Settings className="w-4 h-4" />
               Settings
             </Button>
+            
+            {user && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="w-full justify-start gap-3">
+                    <Avatar className="h-5 w-5">
+                      <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                        {user.email?.[0].toUpperCase() || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="truncate">{user.email}</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end">
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">{user.email}</p>
+                      {isAdmin && (
+                        <p className="text-xs leading-none text-muted-foreground flex items-center gap-1">
+                          <Shield className="h-3 w-3" />
+                          Admin
+                        </p>
+                      )}
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>
+                    <UserCircle className="mr-2 h-4 w-4" />
+                    <span>Profile</span>
+                  </DropdownMenuItem>
+                  {isAdmin && (
+                    <DropdownMenuItem>
+                      <Shield className="mr-2 h-4 w-4" />
+                      <span>Admin Dashboard</span>
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={signOut} className="text-destructive">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
       </nav>
